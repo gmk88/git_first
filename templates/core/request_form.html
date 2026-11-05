@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block title %}提交咨询申请 - 技术咨询服务{% endblock %}
+
+{% block content %}
+<h1>提交咨询申请</h1>
+<p class="form-intro">请填写以下信息，我们的顾问将尽快与您联系。</p>
+
+<form method="post" class="request-form">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="error-summary" role="alert" tabindex="-1">
+        <strong>请检查以下内容：</strong>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                <li><a href="#{{ field.id_for_label }}">{{ field.label }}：{{ error }}</a></li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% for field in form %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <small class="help-text">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <div class="error-message" id="{{ field.id_for_label }}-error">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">提交申请</button>
+    </div>
+</form>
+{% endblock %}

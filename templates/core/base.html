@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}技术咨询服务{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/css/site.css' %}">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">跳至主要内容</a>
+    <nav class="navbar" aria-label="主导航">
+        <div class="container">
+            <a href="/" class="brand">技术咨询</a>
+            <ul class="nav-links">
+                <li><a href="/">首页</a></li>
+                <li><a href="/request/">提交咨询申请</a></li>
+                <li><a href="/report/lookup/">报告查询</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="privacy-notice">
+                <strong>个人信息保护说明：</strong>
+                您在咨询申请中提供的个人信息仅用于本次咨询服务联系，
+                不在官网公开展示、不提供给第三方。
+            </p>
+            <p class="copyright">&copy; 2026 技术咨询服务</p>
+        </div>
+    </footer>
+</body>
+</html>

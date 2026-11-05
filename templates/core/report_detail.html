@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+
+{% block title %}报告详情 - 技术咨询服务{% endblock %}
+
+{% block content %}
+<div class="report-detail-page">
+    <div class="success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <path d="M14 2v6h6"></path>
+            <path d="M8 13h8"></path>
+            <path d="M8 17h5"></path>
+        </svg>
+    </div>
+    <h1>咨询报告</h1>
+
+    <div class="report-info-card">
+        <dl class="info-grid">
+            <dt>企业名称</dt><dd>{{ req.company_name }}</dd>
+            <dt>报告标题</dt><dd>{{ latest.title|default:"暂无报告" }}</dd>
+            <dt>交付日期</dt><dd>{{ delivered_at|date:"Y-m-d"|default:"-" }}</dd>
+            <dt>版本</dt><dd>{% if latest %}v{{ latest.version_no }}{% else %}-{% endif %}</dd>
+        </dl>
+    </div>
+
+    {% if latest %}
+    <a href="{% url 'core:report_download' req.uuid %}" class="btn btn-primary">
+        下载报告
+    </a>
+    {% else %}
+    <p class="muted">报告尚未交付，请稍后再试。</p>
+    {% endif %}
+
+    <p class="hint">如无法下载或凭证泄露，请联系您的咨询顾问。</p>
+</div>
+{% endblock %}

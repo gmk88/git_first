@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+
+{% block title %}报告查询 - 技术咨询服务{% endblock %}
+
+{% block content %}
+<div class="lookup-page">
+    <h1>报告查询</h1>
+    <p class="form-intro">请输入顾问提供的申请编号与查询凭证。</p>
+
+    {% if error %}
+    <div class="error-summary">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="lookup-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="request_no">申请编号</label>
+            <input type="text" id="request_no" name="request_no"
+                   placeholder="如 20261105-0001" required>
+        </div>
+        <div class="form-group">
+            <label for="token">查询凭证</label>
+            <input type="text" id="token" name="token"
+                   placeholder="请输入顾问提供的凭证" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">查询报告</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

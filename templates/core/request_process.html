@@ -1,0 +1,154 @@
+{% extends 'core/base.html' %}
+
+{% block title %}处理申请 {{ req.request_no }} - 咨询管理后台{% endblock %}
+
+{% block content %}
+<div class="process-page">
+    <div class="process-header">
+        <h1>处理申请：{{ req.request_no }}</h1>
+        <a href="/admin/" class="btn btn-secondary">&larr; 返回后台</a>
+    </div>
+
+    {% if error %}
+    <div class="error-summary">{{ error }}</div>
+    {% endif %}
+
+    {% if new_token %}
+    <div class="token-notice">
+        <strong>新凭证（仅显示一次，请立即记录并线下告知客户）：</strong>
+        <code class="token-display">{{ new_token }}</code>
+    </div>
+    {% endif %}
+
+    <section class="info-card">
+        <h2>申请信息</h2>
+        <dl class="info-grid">
+            <dt>企业名称</dt><dd>{{ req.company_name }}</dd>
+            <dt>联系人</dt><dd>{{ req.contact_person }}</dd>
+            <dt>联系电话</dt><dd>{{ req.contact_phone }}</dd>
+            <dt>邮箱</dt><dd>{{ req.contact_email }}</dd>
+            <dt>期望完成时间</dt><dd>{{ req.expected_date|default:"未填写" }}</dd>
+            <dt>提交时间</dt><dd>{{ req.submitted_at }}</dd>
+            <dt>当前阶段</dt><dd><span class="stage-badge">{{ req.get_stage_display }}</span></dd>
+            <dt>负责人</dt><dd>{{ req.owner.username|default:"未认领" }}</dd>
+        </dl>
+        <div class="requirement-box">
+            <h3>需求描述</h3>
+            <p>{{ req.requirement|linebreaks }}</p>
+        </div>
+    </section>
+
+    <section class="action-card">
+        <h2>阶段操作</h2>
+        {% if req.owner_id is None %}
+        <form method="post" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" name="action" value="claim" class="btn btn-primary">认领此申请</button>
+        </form>
+        {% endif %}
+
+        {% if next_stage %}
+        <form method="post" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" name="action" value="advance" class="btn btn-primary">
+                推进到「{{ next_stage.label|default:next_stage }}」
+            </button>
+        </form>
+        {% else %}
+        <p class="muted">已交付，无后续阶段。</p>
+        {% endif %}
+
+        {% if previous_stages %}
+        <form method="post" class="inline-form rollback-form">
+            {% csrf_token %}
+            <select name="to_stage" required>
+                {% for stage in previous_stages %}
+                <option value="{{ stage.value }}">{{ stage.label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="reason" placeholder="回退原因（必填）" required>
+            <button type="submit" name="action" value="rollback" class="btn btn-warning">回退</button>
+        </form>
+        {% endif %}
+    </section>
+
+    <section class="action-card">
+        <h2>沟通纪要</h2>
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            <input type="datetime-local" name="communicated_at" required>
+            <select name="channel" required>
+                <option value="phone">电话</option>
+                <option value="wechat">微信</option>
+                <option value="email">邮件</option>
+                <option value="meeting">会议</option>
+                <option value="other">其他</option>
+            </select>
+            <textarea name="summary" rows="3" maxlength="2000" placeholder="内容摘要" required></textarea>
+            <button type="submit" name="action" value="note" class="btn btn-primary">添加纪要</button>
+        </form>
+
+        <ul class="timeline">
+            {% for note in notes %}
+            <li>
+                <span class="timeline-time">{{ note.communicated_at }}</span>
+                <span class="timeline-channel">{{ note.get_channel_display }}</span>
+                <span class="timeline-text">{{ note.summary }}</span>
+                <span class="timeline-meta">记录人：{{ note.recorder.username }}</span>
+            </li>
+            {% empty %}
+            <li class="muted">暂无纪要</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="action-card">
+        <h2>报告交付</h2>
+        <form method="post" enctype="multipart/form-data" class="stack-form">
+            {% csrf_token %}
+            <input type="text" name="title" maxlength="200" placeholder="报告标题" required>
+            <input type="file" name="file" accept=".pdf,.doc,.docx" required>
+            <button type="submit" name="action" value="upload" class="btn btn-primary">上传报告</button>
+        </form>
+
+        <table class="version-table">
+            <caption>报告版本记录</caption>
+            <thead>
+                <tr><th>版本</th><th>标题</th><th>上传人</th><th>上传时间</th><th>状态</th></tr>
+            </thead>
+            <tbody>
+                {% for version in versions %}
+                <tr>
+                    <td>v{{ version.version_no }}</td>
+                    <td>{{ version.title }}</td>
+                    <td>{{ version.uploaded_by.username }}</td>
+                    <td>{{ version.uploaded_at }}</td>
+                    <td>{% if version.is_archived %}已归档{% else %}最新版{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="muted">尚未上传报告</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="action-card">
+        <h2>流转历史</h2>
+        <ul class="timeline">
+            {% for record in transitions %}
+            <li>
+                <span class="timeline-time">{{ record.created_at }}</span>
+                <span class="timeline-channel">{{ record.get_kind_display }}</span>
+                <span class="timeline-text">
+                    {{ record.from_stage|default:"-" }} → {{ record.to_stage }}
+                    {% if record.reason %}（原因：{{ record.reason }}）{% endif %}
+                </span>
+                <span class="timeline-meta">操作人：{{ record.operator.username }}</span>
+            </li>
+            {% empty %}
+            <li class="muted">暂无流转记录</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

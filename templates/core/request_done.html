@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+{% block title %}申请已提交 - 技术咨询服务{% endblock %}
+
+{% block content %}
+<div class="success-page">
+    <div class="success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+    </div>
+    <span class="sr-only">提交成功</span>
+    <h1>申请已成功提交</h1>
+    <p class="success-message">您的咨询申请已收到，我们的顾问将尽快与您联系。</p>
+
+    <div class="request-number">
+        <p>申请编号：</p>
+        <p class="number-display">{{ request_no }}</p>
+        <p class="hint">请妥善保存此编号，后续可用于查询报告。</p>
+    </div>
+
+    <a href="/" class="btn btn-secondary">返回首页</a>
+</div>
+{% endblock %}
